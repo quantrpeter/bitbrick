@@ -1,4 +1,4 @@
-# Production stack for BitBrick, modelled on wps/docker-compose-prod.yml.
+# Production stack for BitBrick, modelled on bitbrick/docker-compose-prod.yml.
 #
 #   cp .env.prod.example .env.prod      # then fill in the secrets (this file is git-ignored)
 #   docker compose --env-file .env.prod -f docker-compose-prod.yml up -d
@@ -64,8 +64,6 @@ services:
     environment:
       PMA_HOST: mysql
       PMA_PORT: 3306
-      PMA_USER: root
-      PMA_PASSWORD: ${DB_ROOT_PASSWORD:?set DB_ROOT_PASSWORD in .env.prod}
       UPLOAD_LIMIT: 64M
     depends_on:
       mysql:
