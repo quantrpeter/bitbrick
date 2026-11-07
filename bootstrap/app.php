@@ -15,7 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         // TLS is terminated by a reverse proxy / CDN in front of the container.
-        $middleware->trustProxies(at: array_filter(explode(',', (string) env('TRUSTED_PROXIES', ''))) ?: null);
+        // A lone "*" (or "**") must reach Laravel as a string: inside an array it is just an address that never matches.
+        $proxies = trim((string) env('TRUSTED_PROXIES', ''));
+        $middleware->trustProxies(at: in_array($proxies, ['*', '**'], true)
+            ? $proxies
+            : (array_values(array_filter(array_map('trim', explode(',', $proxies)))) ?: null));
         $middleware->alias(['enabled' => EnsureUserEnabled::class, 'admin' => EnsureUserIsAdmin::class]);
         $middleware->redirectGuestsTo(fn () => route('login'));
     })
