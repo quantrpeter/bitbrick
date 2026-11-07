@@ -124,6 +124,22 @@ class DesignApiTest extends TestCase
         $this->assertSame('Mine', Design::findOrFail($id)->name);
     }
 
+    public function test_a_gear_with_its_tooth_count_is_saved(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        $payload = $this->payload();
+        $payload['data']['blocks'][0] = [
+            'pos' => [0, 0, 0], 'type' => 'gear', 'axis' => 'y', 'size' => 'half', 'rounded' => false,
+            'measurements' => ['gearTeeth' => 24],
+        ];
+        $id = $this->postJson('/designer/designs', $payload)->assertCreated()->json('id');
+        $this->getJson("/designer/designs/$id")
+            ->assertOk()
+            ->assertJsonPath('data.blocks.0.type', 'gear')
+            ->assertJsonPath('data.blocks.0.measurements.gearTeeth', 24);
+    }
+
     public function test_per_brick_measurements_are_saved_and_validated(): void
     {
         $this->actingAs(User::factory()->create());

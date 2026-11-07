@@ -92,6 +92,24 @@ Each catalog card shows a real 3D picture of the part (rendered in the browser f
 session). Clicking a card does not add anything at once: a transparent preview follows the mouse, `w` / `s` move it up and down,
 the arrow keys nudge it, a left click or Enter places it, and Esc (or clicking the card again) cancels. Undo removes a placed part.
 
+While the preview follows the mouse, `x` / `y` / `z` point the part along that axis (the direction of its holes, pins, axles or
+ball joints) and pressing the same key again reverses it: `x`, `x` places it towards -X. The banner shows the current direction.
+
+### Gears and round parts
+
+The **Gear** brick (key `7`) is a spur gear centred on its cell. Set its **Teeth** (8 to 64) in the Measurements panel; the tooth
+size is fixed, so a gear with N teeth is N mm across the pitch circle and two gears mesh when their centres are (N1 + N2) / 2 mm
+apart. With 8 mm cells, gears of 8, 24, 40 teeth mesh with each other at whole-cell spacing, and so do 16, 32, 48 teeth. Its axle
+hole stays open unless an axle brick continues through it from the next cell, which then fills the hole. A cylinder is an
+ordinary brick with the corner radius set to 4 mm (half a cell); the *Round parts* presets use that. The tooth profile is
+straight sided (not an exact involute), which is fine for printed gears.
+
+### Ball joints
+
+A ball joint finds the end it is connected to: the neck sits on the end that touches a neighbouring brick (along the joint's own
+axis) and the ball on the free end, so it always points away from what holds it. With a neighbour on neither end, or on both, the
+neck stays on the low end of the axis.
+
 ### Axes and keys
 
 X and Y are the flat directions and **Z is up** (right handed: X right, Y away from you). An axis gizmo in the bottom right corner

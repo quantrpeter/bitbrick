@@ -61,6 +61,26 @@ export function buildMesh(wasm, part) {
 			return extrude(own(a.add(b)), z0, z1);
 		};
 
+		// Spur gear outline: N straight sided teeth around the pitch circle (module = U / 8 mm).
+		const gearProfile = (teeth) => {
+			const module = U / 8;
+			const pitch = (teeth * module) / 2;
+			const tip = pitch + module;
+			const root = pitch - 1.25 * module;
+			const step = (Math.PI * 2) / teeth;
+			const pts = [];
+			const at = (r, a) => pts.push([r * Math.cos(a), r * Math.sin(a)]);
+			for (let i = 0; i < teeth; i++) {
+				const a = i * step;
+				at(root, a - 0.5 * step);
+				at(root, a - 0.31 * step);
+				at(tip, a - 0.15 * step);
+				at(tip, a + 0.15 * step);
+				at(root, a + 0.31 * step);
+			}
+			return pts;
+		};
+
 		const bodies = [];
 		const cutters = [];
 		const attachments = [];
@@ -129,10 +149,31 @@ export function buildMesh(wasm, part) {
 				attachments.push(placeLocal(block, cylinder(mb.pinDiameter, 0, len)));
 			} else if (block.type === 'axle') {
 				attachments.push(placeLocal(block, crossShape(mb.axleSpan, mb.axleArmWidth, 0, len)));
+			} else if (block.type === 'gear') {
+				// Centred on the cell's axis; its thickness is the cell length (half cell = 4 mm). The axle hole is left
+				// open unless an axle continues through the gear from a neighbouring cell, which then fills it.
+				const teeth = Math.round(mb.gearTeeth);
+				let gear = extrude(own(new CrossSection([gearProfile(teeth)], 'Positive')), 0, len);
+				const axleOn = (nb) => !!nb && nb.type === 'axle' && nb.axis === block.axis;
+				if (!axleOn(neighbour(block, add([0, 0, 0], f.a, -1))) && !axleOn(neighbour(block, f.a))) {
+					gear = own(gear.subtract(crossShape(mb.axleHoleSpan, mb.axleHoleSize, -EPS, len + EPS)));
+				}
+				attachments.push(placeLocal(block, gear));
 			} else if (block.type === 'ballJoint') {
+				// The neck sits on the end that is connected to a neighbour and the ball on the free end, so the
+				// joint always points away from what it is attached to. Without a neighbour on either end (or with
+				// one on both) the neck stays on the low end, as before.
+				const lo = neighbour(block, add([0, 0, 0], f.a, -1));
+				const hi = neighbour(block, f.a);
+				const loTouch = !!lo && reaches(lo, block.axis, 1);
+				const hiTouch = !!hi && reaches(block, block.axis, 1);
+				const neckAtHigh = hiTouch && !loTouch;
+
 				const d = Math.min(mb.ballDiameter, len);
-				const centre = len - d / 2;
-				const neck = cylinder(mb.ballBaseDiameter, 0, Math.max(centre, 0.1));
+				const centre = neckAtHigh ? d / 2 : len - d / 2;
+				const neck = neckAtHigh
+					? cylinder(mb.ballBaseDiameter, Math.min(centre, len - 0.1), len)
+					: cylinder(mb.ballBaseDiameter, 0, Math.max(centre, 0.1));
 				const ball = own(own(Manifold.sphere(d / 2, segments)).translate([0, 0, centre]));
 				attachments.push(placeLocal(block, own(neck.add(ball))));
 			}

@@ -6,7 +6,7 @@
 import { BLOCK_TYPES, AXES, SCHEMA_VERSION, parsePart } from './part.js';
 import { SPEC, sparseMeasurements, cleanBlockMeasurements } from './defaults.js';
 
-const TYPE_CODE = { pinHole: 'p', axleHole: 'h', pin: 'n', axle: 'a', solid: 's', ballJoint: 'b' };
+const TYPE_CODE = { pinHole: 'p', axleHole: 'h', pin: 'n', axle: 'a', solid: 's', ballJoint: 'b', gear: 'g' };
 const CODE_TYPE = Object.fromEntries(Object.entries(TYPE_CODE).map(([k, v]) => [v, k]));
 
 export function encodePart(part) {

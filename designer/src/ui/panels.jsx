@@ -188,7 +188,7 @@ function FlatThumb({ blocks }) {
 	const w = Math.max(...cells.map((c) => c.pos[0])) - minX + 1;
 	const h = Math.max(...cells.map((c) => c.pos[2])) - minZ + 1;
 	const size = Math.max(w, h);
-	const fill = { pinHole: 'var(--thumb-a)', axleHole: 'var(--thumb-b)', solid: 'var(--thumb-c)', pin: 'var(--thumb-d)', axle: 'var(--thumb-d)', ballJoint: 'var(--thumb-d)' };
+	const fill = { pinHole: 'var(--thumb-a)', axleHole: 'var(--thumb-b)', solid: 'var(--thumb-c)', pin: 'var(--thumb-d)', axle: 'var(--thumb-d)', gear: 'var(--thumb-b)', ballJoint: 'var(--thumb-d)' };
 	return (
 		<svg viewBox={`0 0 ${size} ${size}`} className="thumb" aria-hidden="true">
 			<g transform={`translate(${(size - w) / 2} ${(size - h) / 2})`}>

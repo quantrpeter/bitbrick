@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import {
 	moveCursor, applyBrush, removeAtCursor, setTypeByIndex, undo, redo, getState,
-	movePlacement, cancelPlacement, confirmPlacement,
+	movePlacement, orientPlacement, cancelPlacement, confirmPlacement,
 } from '../state/store.js';
 import { saveProject } from '../state/actions.js';
 import { AXIS_FROM_USER } from '../model/axes.js';
@@ -42,13 +42,15 @@ export function useKeyboard() {
 			if (getState().placement) {
 				if (k === 'Escape') { e.preventDefault(); cancelPlacement(); return; }
 				if (k === 'Enter') { e.preventDefault(); confirmPlacement(); return; }
-				if (moves[k]) { e.preventDefault(); movePlacement(moves[k]); }
+				if (moves[k]) { e.preventDefault(); movePlacement(moves[k]); return; }
+				// x / y / z point the part along that axis; the same key again reverses it
+				if (AXIS_FROM_USER[k]) { e.preventDefault(); orientPlacement(k); }
 				return; // block-editing keys do nothing until the preset is placed or cancelled
 			}
 
 			if (moves[k]) { e.preventDefault(); moveCursor(moves[k]); return; }
 
-			if (k >= '1' && k <= '6') { setTypeByIndex(Number(k) - 1); return; }
+			if (k >= '1' && k <= '7') { setTypeByIndex(Number(k) - 1); return; }
 			// x / y / z pick the hole direction in the user's axes: X and Y are flat, Z is up.
 			if (AXIS_FROM_USER[k]) { applyBrush({ axis: AXIS_FROM_USER[k] }); return; }
 			if (k === 'h') { applyBrush({ size: getState().brush.size === 'half' ? 'full' : 'half' }); return; }

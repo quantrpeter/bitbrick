@@ -6,6 +6,7 @@ import {
 	setBlockMeasurements, setTypeMeasurements, footprintCenter, insertPreset,
 } from '../model/part.js';
 import { cleanBlockMeasurements } from '../model/defaults.js';
+import { orientBlocks } from '../model/orient.js';
 
 export const DEFAULT_NAME = 'Untitled part';
 
@@ -144,7 +145,23 @@ export function replaceBlocks(blocks) {
 export function startPlacement(item) {
 	const [cx, cz] = footprintCenter(item.blocks);
 	const c = state.cursor;
-	setState({ placement: { item, center: [cx, cz], origin: [c[0] - cx, c[1], c[2] - cz], mesh: null } });
+	// `blocks` is what will be placed: the preset as stored, or turned by x / y / z (see model/orient.js)
+	setState({ placement: { item, blocks: item.blocks, orient: { key: null, reversed: false }, center: [cx, cz], origin: [c[0] - cx, c[1], c[2] - cz], mesh: null } });
+}
+
+/**
+ * x / y / z (user axes) point the preset along that axis; the same key again reverses it. The part stays under
+ * the pointer: the cell it was centred on remains the centre.
+ */
+export function orientPlacement(key) {
+	const p = state.placement;
+	if (!p) return;
+	const reversed = p.orient.key === key ? !p.orient.reversed : false;
+	const blocks = orientBlocks(p.item.blocks, key, reversed);
+	const [cx, cz] = footprintCenter(blocks);
+	const origin = [p.origin[0] + p.center[0] - cx, p.origin[1], p.origin[2] + p.center[1] - cz];
+	if (!inBounds(origin)) { showToast('There is no room to turn it here. Move it towards the middle first.', 'error'); return; }
+	setState({ placement: { ...p, blocks, orient: { key, reversed }, center: [cx, cz], origin, mesh: null } });
 }
 
 export function cancelPlacement() {
@@ -167,17 +184,17 @@ export function hoverPlacement(hx, hz) {
 	if (inBounds(origin) && (origin[0] !== p.origin[0] || origin[2] !== p.origin[2])) setState({ placement: { ...p, origin } });
 }
 
-/** The preview mesh arrives from the worker; ignored if another preset was chosen meanwhile. */
-export function setPlacementMesh(itemId, mesh) {
+/** The preview mesh arrives from the worker; ignored if the preset was turned or replaced meanwhile. */
+export function setPlacementMesh(blocks, mesh) {
 	const p = state.placement;
-	if (p && p.item.id === itemId) setState({ placement: { ...p, mesh } });
+	if (p && p.blocks === blocks) setState({ placement: { ...p, mesh } });
 }
 
 /** Put the preset where the preview is. Bricks in those cells are replaced; one undo step. */
 export function confirmPlacement() {
 	const p = state.placement;
 	if (!p) return false;
-	const r = insertPreset(state.part, p.item.blocks, p.origin, MAX_BLOCKS);
+	const r = insertPreset(state.part, p.blocks, p.origin, MAX_BLOCKS);
 	if (!r.placed) {
 		showToast(r.reason === 'limit' ? `That would exceed the ${MAX_BLOCKS} block limit.` : 'That position is outside the allowed area.', 'error');
 		return false;

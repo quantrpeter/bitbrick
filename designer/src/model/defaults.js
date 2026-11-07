@@ -25,6 +25,8 @@ export const MEASUREMENTS = [
 	{ key: 'axleArmWidth', label: 'Axle Arm Width', unit: 'mm', default: 1.8, min: 1, max: 3.5, step: 0.01, group: 'Axle', types: ['axle'] },
 
 	{ key: 'ballDiameter', label: 'Ball Diameter', unit: 'mm', default: 6, min: 3, max: 9, step: 0.1, group: 'Ball joint', types: ['ballJoint'] },
+	{ key: 'gearTeeth', label: 'Teeth', unit: '', default: 16, min: 8, max: 64, step: 1, integer: true, group: 'Gear', types: ['gear'],
+		help: 'Number of teeth. The tooth size is fixed, so a gear with N teeth is N mm across at the pitch circle (8 mm per grid cell): two gears mesh when the distance between their centres is half the sum of their teeth.' },
 	{ key: 'ballBaseDiameter', label: 'Ball Base Diameter', unit: 'mm', default: 3.2, min: 1.5, max: 6, step: 0.1, group: 'Ball joint', types: ['ballJoint'] },
 ];
 

@@ -13,7 +13,7 @@ class DesignController extends Controller
     public const MEASUREMENT_KEYS = [
         'gridUnit', 'subdivisionsPerQuarter', 'edgeMargin', 'cornerRadius',
         'pinHoleDiameter', 'counterboreDiameter', 'counterboreDepth', 'axleHoleSpan', 'axleHoleSize',
-        'pinDiameter', 'axleSpan', 'axleArmWidth', 'ballDiameter', 'ballBaseDiameter',
+        'pinDiameter', 'axleSpan', 'axleArmWidth', 'ballDiameter', 'ballBaseDiameter', 'gearTeeth',
     ];
 
     public function index(Request $request): JsonResponse
@@ -107,7 +107,7 @@ class DesignController extends Controller
             'data.blocks' => ['present', 'array', 'max:'.$max],
             'data.blocks.*.pos' => ['required', 'array', 'size:3'],
             'data.blocks.*.pos.*' => ['required', 'integer', 'between:-1024,1024'],
-            'data.blocks.*.type' => ['required', Rule::in(['pinHole', 'axleHole', 'pin', 'axle', 'solid', 'ballJoint'])],
+            'data.blocks.*.type' => ['required', Rule::in(['pinHole', 'axleHole', 'pin', 'axle', 'solid', 'ballJoint', 'gear'])],
             'data.blocks.*.axis' => ['required', Rule::in(['x', 'y', 'z'])],
             'data.blocks.*.size' => ['required', Rule::in(['full', 'half'])],
             'data.blocks.*.rounded' => ['required', 'boolean'],

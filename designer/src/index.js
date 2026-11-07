@@ -42,16 +42,16 @@ function scheduleMesh() {
 	}, 120);
 }
 
-// Build the transparent preview for a catalog preset that is being placed (once per chosen preset).
-let previewItem = null;
+// Build the transparent preview for the preset being placed (again whenever it is turned with x / y / z).
+let previewBlocks = null;
 function schedulePreview() {
 	const placement = getState().placement;
-	if (!placement) { previewItem = null; return; }
-	if (placement.item === previewItem) return;
-	previewItem = placement.item;
-	const { item } = placement;
-	requestPreviewMesh({ version: 1, name: item.name, blocks: item.blocks, measurements: getState().part.measurements })
-		.then((mesh) => { if (mesh) setPlacementMesh(item.id, mesh); })
+	if (!placement) { previewBlocks = null; return; }
+	if (placement.blocks === previewBlocks) return;
+	previewBlocks = placement.blocks;
+	const { blocks, item } = placement;
+	requestPreviewMesh({ version: 1, name: item.name, blocks, measurements: getState().part.measurements })
+		.then((mesh) => { if (mesh) setPlacementMesh(blocks, mesh); })
 		.catch(() => { /* no preview: the preset can still be placed */ });
 }
 

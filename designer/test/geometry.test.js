@@ -87,6 +87,34 @@ test('pin, axle and ball joint attach to a body', () => {
 	}
 });
 
+test('a ball joint points away from the brick it is attached to', () => {
+	const U = 8;
+	const joint = (pos) => blk(pos, { type: 'ballJoint', axis: 'x' });
+	const solid = (pos) => blk(pos, { type: 'solid' });
+	// Mean x (measured from the start of the joint's cell) of the vertices that belong to the ball.
+	const ballPosition = (r, cellStart) => {
+		let sum = 0; let n = 0;
+		for (let i = 0; i < r.positions.length; i += 3) {
+			const x = r.positions[i] - cellStart;
+			const radius = Math.hypot(r.positions[i + 1] - U / 2, r.positions[i + 2] - U / 2);
+			if (radius > 2.5 && radius < 3.5 && x > 0.1 && x < U - 0.1) { sum += x; n++; }
+		}
+		assert.ok(n > 0, 'no ball vertices found');
+		return sum / n;
+	};
+	const bodyLow = buildMesh(wasm, partOf([solid([0, 0, 0]), joint([1, 0, 0])]));
+	const bodyHigh = buildMesh(wasm, partOf([joint([0, 0, 0]), solid([1, 0, 0])]));
+	const alone = buildMesh(wasm, partOf([joint([0, 0, 0])]));
+	assert.ok(bodyLow.manifold && bodyHigh.manifold && alone.manifold);
+	assert.ok(ballPosition(bodyLow, U) > U / 2, 'body on the low side: ball at the far end');
+	assert.ok(ballPosition(bodyHigh, 0) < U / 2, 'body on the high side: the joint flips');
+	assert.ok(ballPosition(alone, 0) > U / 2, 'a lone joint keeps the default direction');
+	// same shape mirrored
+	assert.ok(Math.abs(bodyLow.volume - bodyHigh.volume) < 1e-6);
+	// the neck reaches the neighbour: one connected, watertight body
+	assert.ok(bodyHigh.bbox.min[0] >= -1e-6 && bodyHigh.bbox.max[0] <= 2 * U + 1e-6);
+});
+
 test('every catalog preset builds a manifold mesh', () => {
 	for (const preset of catalog) {
 		const part = partOf(preset.blocks);
@@ -160,4 +188,27 @@ test('edge margin and pin diameter work per brick', () => {
 	const pinThin = buildMesh(wasm, partOf([{ ...blk([0, 0, 0], { type: 'pin' }), measurements: { pinDiameter: 3.5 } }]));
 	const pinStd = buildMesh(wasm, partOf([blk([0, 0, 0], { type: 'pin' })]));
 	assert.ok(pinThin.volume < pinStd.volume);
+});
+
+test('a gear builds a watertight toothed disc with an axle hole', () => {
+	for (const teeth of [8, 16, 24, 40]) {
+		const r = buildMesh(wasm, partOf([blk([0, 0, 0], { type: 'gear', axis: 'y', size: 'half', measurements: { gearTeeth: teeth } })]));
+		assert.ok(r.manifold, `${teeth}T`);
+		const diameter = r.bbox.max[0] - r.bbox.min[0];
+		assert.ok(diameter > teeth && diameter < teeth + 3, `${teeth}T is ${diameter} mm across`);
+		assert.ok(Math.abs(r.bbox.max[1] - r.bbox.min[1] - 4) < 1e-6, 'a half block gear is 4 mm thick');
+	}
+	const hole = buildMesh(wasm, partOf([blk([0, 0, 0], { type: 'gear', axis: 'y', measurements: { gearTeeth: 16 } })]));
+	const solid = buildMesh(wasm, partOf([
+		blk([-1, 0, 0], { type: 'axle', axis: 'y' }), blk([0, 0, 0], { type: 'gear', axis: 'y', measurements: { gearTeeth: 16 } }),
+	]));
+	assert.ok(solid.manifold && solid.volume > hole.volume, 'an axle through the gear fills its hole');
+});
+
+test('more teeth make a bigger gear', () => {
+	const size = (teeth) => {
+		const r = buildMesh(wasm, partOf([blk([0, 0, 0], { type: 'gear', axis: 'y', size: 'half', measurements: { gearTeeth: teeth } })]));
+		return r.bbox.max[0] - r.bbox.min[0];
+	};
+	assert.ok(size(8) < size(16) && size(16) < size(40));
 });

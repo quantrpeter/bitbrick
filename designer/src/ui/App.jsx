@@ -147,8 +147,8 @@ function PlacementBanner() {
 	if (!placement) return null;
 	return (
 		<div className="placing" role="status">
-			<strong>Placing {placement.item.name}</strong>
-			<span>Move the mouse, <kbd>w</kbd>/<kbd>s</kbd> up and down, click or <kbd>Enter</kbd> to place, <kbd>Esc</kbd> to cancel</span>
+			<strong>Placing {placement.item.name}{placement.orient.key && ` (${placement.orient.reversed ? '-' : '+'}${placement.orient.key.toUpperCase()})`}</strong>
+			<span>Move the mouse, <kbd>w</kbd>/<kbd>s</kbd> up and down, <kbd>x</kbd> <kbd>y</kbd> <kbd>z</kbd> turn it (again to reverse), click or <kbd>Enter</kbd> to place, <kbd>Esc</kbd> to cancel</span>
 			<span className="placing-actions">
 				<button className="btn small primary" onClick={confirmPlacement}>Place</button>
 				<button className="btn small" onClick={cancelPlacement}>Cancel</button>

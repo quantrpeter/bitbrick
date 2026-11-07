@@ -3,9 +3,9 @@ import { cleanBlockMeasurements, resolveMeasurements } from './defaults.js';
 
 export const SCHEMA_VERSION = 1;
 
-export const BLOCK_TYPES = ['pinHole', 'axleHole', 'pin', 'axle', 'solid', 'ballJoint'];
+export const BLOCK_TYPES = ['pinHole', 'axleHole', 'pin', 'axle', 'solid', 'ballJoint', 'gear'];
 export const TYPE_LABELS = {
-	pinHole: 'Pin Hole', axleHole: 'Axle Hole', pin: 'Pin', axle: 'Axle', solid: 'Solid', ballJoint: 'Ball Joint',
+	pinHole: 'Pin Hole', axleHole: 'Axle Hole', pin: 'Pin', axle: 'Axle', solid: 'Solid', ballJoint: 'Ball Joint', gear: 'Gear',
 };
 export const AXES = ['x', 'y', 'z'];
 export const AXIS_INDEX = { x: 0, y: 1, z: 2 };
