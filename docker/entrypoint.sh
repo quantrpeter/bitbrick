@@ -3,6 +3,13 @@ set -e
 
 cd /var/www/html
 
+# One-off commands (docker run --rm <image> php artisan key:generate --show, a shell, ...) skip the startup
+# work below: they need neither the key nor the database. Only the real service (supervisord) does.
+case "${1:-}" in
+    supervisord) ;;
+    *) exec "$@" ;;
+esac
+
 if [ -z "${APP_KEY:-}" ]; then
     echo "APP_KEY is not set. Generate one with: docker run --rm <image> php artisan key:generate --show" >&2
     exit 1
