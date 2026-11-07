@@ -1,0 +1,6 @@
+[mysqld]
+# Single-node deployment: binary logs would only cost disk and write throughput.
+disable-log-bin
+skip-log-bin
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci

@@ -1,0 +1,73 @@
+import { createRoot } from 'react-dom/client';
+import './ui/styles.css';
+import App from './ui/App.jsx';
+import { getState, setState, subscribe, setPlacementMesh } from './state/store.js';
+import { bootstrapPart, saveDraft, restoreViewPrefs, saveViewPrefs } from './state/actions.js';
+import { requestMesh, requestPreviewMesh } from './geometry/client.js';
+
+const boot = window.__BITBRICK__ || { user: null, urls: {}, csrf: '', limits: { maxBlocks: 5000 } };
+
+setState({
+	user: boot.user || null,
+	urls: boot.urls || {},
+	csrf: boot.csrf || '',
+	limits: boot.limits || getState().limits,
+});
+
+restoreViewPrefs();
+
+// Rebuild the mesh in the worker whenever the part changes (debounced; stale results are dropped).
+let meshTimer = null;
+let lastBlocks = null;
+let lastMeasurements = null;
+function scheduleMesh() {
+	const { part } = getState();
+	// Only the blocks and measurements matter: renaming the project must not rebuild the mesh.
+	if (part.blocks === lastBlocks && part.measurements === lastMeasurements) return;
+	lastBlocks = part.blocks;
+	lastMeasurements = part.measurements;
+	clearTimeout(meshTimer);
+	if (!part.blocks.length) {
+		setState({ mesh: null, meshStatus: 'idle', meshError: null });
+		return;
+	}
+	setState({ meshStatus: 'building' });
+	meshTimer = setTimeout(async () => {
+		try {
+			const mesh = await requestMesh(part);
+			if (mesh && getState().part.blocks === part.blocks) setState({ mesh, meshStatus: 'idle', meshError: null });
+		} catch (e) {
+			if (getState().part.blocks === part.blocks) setState({ meshStatus: 'error', meshError: e.message });
+		}
+	}, 120);
+}
+
+// Build the transparent preview for a catalog preset that is being placed (once per chosen preset).
+let previewItem = null;
+function schedulePreview() {
+	const placement = getState().placement;
+	if (!placement) { previewItem = null; return; }
+	if (placement.item === previewItem) return;
+	previewItem = placement.item;
+	const { item } = placement;
+	requestPreviewMesh({ version: 1, name: item.name, blocks: item.blocks, measurements: getState().part.measurements })
+		.then((mesh) => { if (mesh) setPlacementMesh(item.id, mesh); })
+		.catch(() => { /* no preview: the preset can still be placed */ });
+}
+
+// Autosave a local draft (debounced).
+let draftTimer = null;
+let lastView = '';
+subscribe(() => {
+	scheduleMesh();
+	schedulePreview();
+	const view = getState().displayStyle + getState().partColor + getState().rtQuality;
+	if (view !== lastView) { lastView = view; saveViewPrefs(); }
+	const { part } = getState();
+	clearTimeout(draftTimer);
+	draftTimer = setTimeout(() => saveDraft(part), 600);
+});
+
+const mount = document.getElementById('main');
+createRoot(mount).render(<App />);
+bootstrapPart(boot);
