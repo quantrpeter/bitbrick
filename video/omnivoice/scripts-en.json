@@ -1,0 +1,54 @@
+[
+ {
+  "id": "intro",
+  "text": "Welcome to BitBrick! In this tutorial you will learn how to design pin and axle building parts right in your browser, and export them for 3D printing. Let us get started."
+ },
+ {
+  "id": "signin",
+  "text": "First, sign in. Type your username or e-mail, then your password, or use the Google button. Everyone has an account, so your designs are always saved safely."
+ },
+ {
+  "id": "layout",
+  "text": "This is the designer. Along the top are the project buttons: New, Open, Save and Save as. On the left are the tools. In the middle is the 3D view, where your part appears. The axes in the corner show the directions: X to the right, Y away from you, and Z is up."
+ },
+ {
+  "id": "catalog",
+  "text": "Let us place a part. Open the catalog. Each card shows a real 3D picture of the part. Click Beam 5, and move the mouse over the view. A transparent copy follows the mouse. Press W and S to move it up and down. Then click to place it."
+ },
+ {
+  "id": "orbit",
+  "text": "Drag with the mouse to turn the view. Use the wheel to zoom in and out. And Fit view brings the whole part back to the middle."
+ },
+ {
+  "id": "turn",
+  "text": "Some parts have a direction. Pick the Ball Joint and move it over the view. Press X to point it along X. Press X again to reverse it. Y and Z point it along the other two axes. Click to place it."
+ },
+ {
+  "id": "edit",
+  "text": "You can also build brick by brick. Use the arrow keys to move the yellow cursor, and W and S to go up and down. Press a number from 1 to 7 to choose the brick type: pin hole, axle hole, pin, axle, solid, ball joint, or gear. X, Y and Z set the direction of the hole. H makes a half block, and R switches rounded edges. Delete removes the brick."
+ },
+ {
+  "id": "measure",
+  "text": "Printers are different, so every brick has its own measurements. Move the cursor onto a brick. The Measurements panel shows only the values that apply to it, like the pin hole diameter. Change a value and press Apply. Apply to all copies it to every brick of the same type."
+ },
+ {
+  "id": "gears",
+  "text": "BitBrick also has gears. Open the Gears category and pick a gear. Place a 16 tooth gear, then a 32 tooth gear three cells away. The teeth fit together, because the distance between the centres is half the sum of the teeth. You can change the number of teeth in the Measurements panel. Gears with 8, 24 and 40 teeth mesh with each other, and so do 16, 32 and 48."
+ },
+ {
+  "id": "styles",
+  "text": "The display style changes how the part looks: contour, solid, wireframe, X-ray, or realistic, which ray traces the picture. And you can pick a colour too."
+ },
+ {
+  "id": "save",
+  "text": "To keep your work, click Save as and give the project a name. The name appears at the top right. Click it to rename. Open lists all your projects, where you can rename, share or delete them."
+ },
+ {
+  "id": "export",
+  "text": "When you are happy with the part, press Save STL. The file is turned upright with Z up and resting on the table, ready for your slicer. Share gives you a link to send to a friend."
+ },
+ {
+  "id": "outro",
+  "text": "Here are the keys to remember. Arrow keys move the cursor. W and S go up and down. X, Y and Z turn. Numbers pick the type. H is half, R is rounded, Delete removes, and Control S saves. That is all. Happy building!"
+ }
+]
