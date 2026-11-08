@@ -130,6 +130,12 @@ the first time Realistic is chosen. Browsers or GPUs without WebGL2 float render
 The package's WebGL tracer is marked deprecated by its author (its successor needs WebGPU), so the version is pinned in
 `designer/package-lock.json`; revisit when WebGPU is widely available.
 
+The backdrop and the lighting in Realistic come from one HDR picture, `designer/src/assets/studio-sunrise-2k.hdr.jpg` (an
+Ultra HDR JPEG, loaded with three.js's `UltraHDRLoader`, about 460 KB, downloaded together with the tracer). It is the
+"spruit sunrise" panorama from the three.js examples, which is from [Poly Haven](https://polyhaven.com/a/spruit_sunrise) (CC0).
+The toolbar's palette button swaps it for a flat colour; the picture still lights the part. To use another picture, replace
+that file (any Ultra HDR equirectangular JPEG).
+
 ### Tests
 
 ```sh

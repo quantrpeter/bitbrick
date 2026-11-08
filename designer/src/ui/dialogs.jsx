@@ -254,11 +254,40 @@ export function OpenDialog() {
 	);
 }
 
+/** What BitBrick is for and every keyboard shortcut (opened from "Help" in the top bar). */
+export function HelpDialog() {
+	return (
+		<Modal title="Help" onClose={closeDialog}>
+			<div className="stack">
+				<p className="hint">Design pin-and-axle building parts for 3D printing. Your designs are saved to your account.</p>
+				<dl className="keys">
+					<dt><kbd>1</kbd>-<kbd>6</kbd></dt><dd>set type</dd>
+					<dt><kbd>x</kbd> <kbd>y</kbd> <kbd>z</kbd></dt><dd>set orientation (X, Y flat, Z up)</dd>
+					<dt><kbd>h</kbd> <kbd>r</kbd></dt><dd>half block / rounded edges</dd>
+					<dt><kbd>{'←'}</kbd> <kbd>{'→'}</kbd></dt><dd>move cursor along X</dd>
+					<dt><kbd>{'↑'}</kbd> <kbd>{'↓'}</kbd></dt><dd>move cursor along Y (away / towards you)</dd>
+					<dt><kbd>w</kbd> <kbd>s</kbd></dt><dd>move cursor up and down (Z)</dd>
+					<dt><kbd>Enter</kbd></dt><dd>place a block</dd>
+					<dt><kbd>Del</kbd> <kbd>Backspace</kbd></dt><dd>remove block</dd>
+					<dt><kbd>Ctrl/Cmd</kbd>+<kbd>Z</kbd></dt><dd>undo (add Shift to redo)</dd>
+					<dt><kbd>Ctrl/Cmd</kbd>+<kbd>S</kbd></dt><dd>save</dd>
+				</dl>
+				<p className="hint">Click the 3D view to move the cursor. Shift+click selects the cell next to the clicked face.</p>
+				<p className="hint small">BitBrick is an independent project and is not affiliated with any brand owner.</p>
+				<div className="modal-actions">
+					<button type="button" className="btn primary" onClick={closeDialog} data-autofocus>Close</button>
+				</div>
+			</div>
+		</Modal>
+	);
+}
+
 export function DialogHost() {
 	const dialog = useStore((s) => s.dialog);
 	if (!dialog) return null;
 	if (dialog.type === 'new') return <NewProjectDialog />;
 	if (dialog.type === 'saveAs') return <SaveAsDialog />;
 	if (dialog.type === 'open') return <OpenDialog />;
+	if (dialog.type === 'help') return <HelpDialog />;
 	return null;
 }

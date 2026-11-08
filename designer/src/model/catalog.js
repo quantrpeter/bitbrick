@@ -155,10 +155,12 @@ export const catalog = [
 	// Gears of 8, 24, 40 teeth mesh at whole cells with each other, and so do 16, 32, 48 teeth.
 	...[8, 16, 24, 32, 40, 48].map((n) => ({ id: `gear-${n}`, name: `Gear ${n} teeth`, category: 'Gears', blocks: gear(n) })),
 	...[16, 24, 40].map((n) => ({ id: `gear-${n}-thick`, name: `Gear ${n} teeth (thick)`, category: 'Gears', blocks: gear(n, 'full') })),
+	// A gear on an axle is as thick as a whole cell, so the axle pieces on both sides touch it (a thin gear leaves a gap and
+	// the part falls apart into separate pieces).
 	{ id: 'gear-8-axle', name: 'Gear 8 teeth on Axle', category: 'Gears',
-		blocks: [b(0, 0, 0, 'axle', 'y', false), { ...gear(8)[0], pos: [0, 1, 0] }, b(0, 2, 0, 'axle', 'y', false)] },
+		blocks: [b(0, 0, 0, 'axle', 'y', false), { ...gear(8, 'full')[0], pos: [0, 1, 0] }, b(0, 2, 0, 'axle', 'y', false)] },
 	{ id: 'gear-24-axle', name: 'Gear 24 teeth on Axle', category: 'Gears',
-		blocks: [b(0, 0, 0, 'axle', 'y', false), { ...gear(24)[0], pos: [0, 1, 0] }, b(0, 2, 0, 'axle', 'y', false)] },
+		blocks: [b(0, 0, 0, 'axle', 'y', false), { ...gear(24, 'full')[0], pos: [0, 1, 0] }, b(0, 2, 0, 'axle', 'y', false)] },
 ];
 
 export function searchCatalog(query, category) {

@@ -28,10 +28,11 @@ const initial = () => ({
 	viewNonce: 0, // bump to ask the viewport to re-frame the part
 	showBounds: false, // draw the part's bounding box
 	partColor: '#aab7cc', // part colour, used by every display style (display only, not saved with the part)
+	bgColor: null, // viewport background: null = the style's own backdrop (blueprint blue, or the sky when ray traced), else '#rrggbb'
 	rtQuality: 'good', // ray tracing quality: draft | good | best
 	rt: { state: 'off', samples: 0, max: 256 }, // off | loading | tracing | done | unsupported
-	sections: { part: true, edit: true, catalog: true, measurements: true, about: false },
-	dialog: null, // { type: 'new' | 'saveAs' | 'open' | 'confirm', ... } while a modal is open
+	sections: { part: true, edit: true, catalog: true, measurements: true },
+	dialog: null, // { type: 'new' | 'saveAs' | 'open' | 'help', ... } while a modal is open
 	placement: null, // { item, center, origin, mesh } while a catalog preset is being positioned
 	nameChosen: false, // false until the project got a name on purpose (New, Save as, rename, open)
 	user: null,
@@ -239,6 +240,10 @@ export function setRtQuality(rtQuality) {
 }
 export function setPartColor(partColor) {
 	if (PART_COLORS.some((c) => c.value === partColor)) setState({ partColor });
+}
+/** Pass a '#rrggbb' colour, or null to go back to the style's own backdrop. */
+export function setBgColor(bgColor) {
+	if (bgColor === null || /^#[0-9a-f]{6}$/i.test(bgColor)) setState({ bgColor: bgColor && bgColor.toLowerCase() });
 }
 export function cycleDisplayStyle() {
 	setState((s) => ({ displayStyle: STYLE_ORDER[(STYLE_ORDER.indexOf(s.displayStyle) + 1) % STYLE_ORDER.length] }));

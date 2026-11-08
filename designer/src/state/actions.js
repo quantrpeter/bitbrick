@@ -167,8 +167,8 @@ export async function openDesign(id) {
 const VIEW_KEY = 'bitbrick.view.v1';
 
 export function saveViewPrefs() {
-	const { displayStyle, partColor, rtQuality } = getState();
-	try { window.localStorage.setItem(VIEW_KEY, JSON.stringify({ displayStyle, partColor, rtQuality })); } catch { /* optional */ }
+	const { displayStyle, partColor, rtQuality, bgColor } = getState();
+	try { window.localStorage.setItem(VIEW_KEY, JSON.stringify({ displayStyle, partColor, rtQuality, bgColor })); } catch { /* optional */ }
 }
 
 export function restoreViewPrefs() {
@@ -178,6 +178,7 @@ export function restoreViewPrefs() {
 		if (STYLE_ORDER.includes(p.displayStyle)) patch.displayStyle = p.displayStyle;
 		if (PART_COLORS.some((c) => c.value === p.partColor)) patch.partColor = p.partColor;
 		if (RT_QUALITIES.includes(p.rtQuality)) patch.rtQuality = p.rtQuality;
+		if (typeof p.bgColor === 'string' && /^#[0-9a-f]{6}$/i.test(p.bgColor)) patch.bgColor = p.bgColor.toLowerCase();
 		if (Object.keys(patch).length) setState(patch);
 	} catch { /* ignore a corrupt value */ }
 }

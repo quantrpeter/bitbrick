@@ -212,3 +212,23 @@ test('more teeth make a bigger gear', () => {
 	};
 	assert.ok(size(8) < size(16) && size(16) < size(40));
 });
+
+/** Number of separate pieces in a mesh (triangles that share vertices belong to the same piece). */
+function pieces(mesh) {
+	const parent = Array.from({ length: mesh.positions.length / 3 }, (_, i) => i);
+	const find = (i) => { while (parent[i] !== i) { parent[i] = parent[parent[i]]; i = parent[i]; } return i; };
+	for (let t = 0; t < mesh.indices.length; t += 3) {
+		parent[find(mesh.indices[t])] = find(mesh.indices[t + 1]);
+		parent[find(mesh.indices[t + 1])] = find(mesh.indices[t + 2]);
+	}
+	return new Set(parent.map((_, i) => find(i))).size;
+}
+
+test('gear presets on an axle are one connected piece', () => {
+	for (const id of ['gear-8-axle', 'gear-24-axle']) {
+		const preset = catalog.find((c) => c.id === id);
+		const r = buildMesh(wasm, partOf(preset.blocks));
+		assert.ok(r.manifold, id);
+		assert.equal(pieces(r), 1, `${id} split into ${pieces(r)} pieces`);
+	}
+});

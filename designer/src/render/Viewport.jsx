@@ -11,7 +11,7 @@ import { resolveMeasurements } from '../model/defaults.js';
 // One blueprint palette; the canvas is transparent so the stage's blue grid shows through.
 const PALETTE = { mesh: 0xaab7cc, edge: 0x0a1633, grid: 0x7fa6ff, bounds: 0xffc800, cursor: 0x3d86ff };
 // Behind exported thumbnails (the canvas itself is transparent).
-const STAGE_BG = { default: '#153a86', realistic: '#d3d8e0' };
+const STAGE_BG = { default: '#153a86', realistic: '#8fb8e6' };
 const CREASE_ANGLE = (35 * Math.PI) / 180; // smooth round holes, keep box edges sharp
 
 export default function Viewport() {
@@ -25,6 +25,7 @@ export default function Viewport() {
 	const viewNonce = useStore((s) => s.viewNonce);
 	const showBounds = useStore((s) => s.showBounds);
 	const partColor = useStore((s) => s.partColor);
+	const bgColor = useStore((s) => s.bgColor);
 	const rtQuality = useStore((s) => s.rtQuality);
 	const placement = useStore((s) => s.placement);
 
@@ -147,9 +148,8 @@ export default function Viewport() {
 			const size = Math.round(Math.min(200, Math.max(120, w * 0.17)));
 			const pad = 16;
 			const g = ctx.gizmo;
-			g.camera.position.copy(camera.position).sub(controls.target).normalize().multiplyScalar(6.3); // far enough that the labels are never clipped by the square viewport
-			g.camera.up.copy(camera.up);
-			g.camera.lookAt(0, 0, 0);
+			g.camera.quaternion.copy(camera.quaternion); // same orientation as the scene camera
+			g.camera.position.set(0, 0, 10).applyQuaternion(g.camera.quaternion); // looking at the origin from the scene camera's side
 			const autoClear = renderer.autoClear;
 			renderer.autoClear = false;
 			renderer.setScissorTest(true);
@@ -268,7 +268,7 @@ export default function Viewport() {
 				out.width = 240;
 				out.height = 180;
 				const c2d = out.getContext('2d');
-				c2d.fillStyle = STAGE_BG[ctx.style === 'realistic' ? 'realistic' : 'default'];
+				c2d.fillStyle = ctx.bgColor || STAGE_BG[ctx.style === 'realistic' ? 'realistic' : 'default'];
 				c2d.fillRect(0, 0, out.width, out.height);
 				const src = renderer.domElement;
 				const scale = Math.max(out.width / src.width, out.height / src.height);
@@ -318,7 +318,7 @@ export default function Viewport() {
 		const build = () => {
 			if (ctx.grid) { ctx.scene.remove(ctx.grid); ctx.grid.geometry.dispose(); ctx.grid.material.dispose(); }
 			const cells = 40;
-			const grid = new THREE.GridHelper(cells * U, cells, PALETTE.grid, PALETTE.grid);
+			const grid = new THREE.GridHelper(cells * U, cells, gridColorFor(ctx.bgColor), gridColorFor(ctx.bgColor));
 			grid.visible = ctx.style !== 'realistic';
 			grid.material.transparent = true;
 			grid.material.opacity = 0.32;
@@ -365,10 +365,11 @@ export default function Viewport() {
 		(async () => {
 			setState({ rt: { state: 'loading', samples: 0, max: QUALITY[getState().rtQuality].samples } });
 			try {
-				const lib = await loadRayTracer();
+				const tracerLib = await loadRayTracer();
 				if (cancelled || ctx.style !== 'realistic') return;
 				if (!rayTracingSupported(ctx.renderer)) throw new Error('this browser or GPU lacks WebGL2 float rendering');
-				ctx.rt ||= new RayTracer(ctx.renderer, ctx.camera, lib);
+				ctx.rt ||= new RayTracer(ctx.renderer, ctx.camera, tracerLib);
+				ctx.rt.setBackground(ctx.bgColor);
 				ctx.rt.setQuality(getState().rtQuality);
 				const { mesh: current, partColor: colour } = getState();
 				ctx.rt.setPart(current, colour);
@@ -388,6 +389,16 @@ export default function Viewport() {
 		})();
 		return () => { cancelled = true; };
 	}, [style]);
+
+	// ---- background colour (null = the style's own backdrop; the page paints it behind the transparent canvas)
+	useEffect(() => {
+		const ctx = sceneRef.current;
+		if (!ctx) return;
+		ctx.bgColor = bgColor;
+		ctx.rt?.setBackground(bgColor); // the ray tracer draws its own background, so it needs telling
+		if (ctx.grid) ctx.grid.material.color.set(gridColorFor(bgColor));
+		ctx.dirty = true;
+	}, [bgColor]);
 
 	// ---- ray tracing quality
 	useEffect(() => {
@@ -602,7 +613,9 @@ export default function Viewport() {
 /** X (red), Y (green, away from the viewer) and Z (blue, up) arrows with labels; stored axes: x, -z, y. */
 function buildAxisGizmo() {
 	const scene = new THREE.Scene();
-	const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 40);
+	// Orthographic: with a perspective lens the arrows lean away from the true view directions (they looked unparallel to
+	// the cursor's arrows in the scene). Using the scene camera's own orientation makes them point exactly the same way.
+	const camera = new THREE.OrthographicCamera(-1.75, 1.75, 1.75, -1.75, 0.1, 40);
 	const axes = [
 		{ dir: new THREE.Vector3(1, 0, 0), color: 0xe0302a, label: 'X' },
 		{ dir: new THREE.Vector3(0, 0, -1), color: 0x2fbf4a, label: 'Y' },
@@ -624,9 +637,12 @@ function buildAxisGizmo() {
 		c2d.font = '700 60px system-ui, sans-serif';
 		c2d.textAlign = 'center';
 		c2d.textBaseline = 'middle';
-		c2d.lineWidth = 9;
 		c2d.lineJoin = 'round';
-		c2d.strokeStyle = 'rgba(255,255,255,0.95)'; // light halo keeps the letter readable on dark and light backdrops
+		c2d.lineWidth = 15;
+		c2d.strokeStyle = 'rgba(10,22,51,0.8)'; // dark outer edge, then a light ring: readable on pale and on dark backdrops
+		c2d.strokeText(label, 48, 52);
+		c2d.lineWidth = 8;
+		c2d.strokeStyle = 'rgba(255,255,255,0.95)';
 		c2d.strokeText(label, 48, 52);
 		c2d.fillStyle = `#${color.toString(16).padStart(6, '0')}`;
 		c2d.fillText(label, 48, 52);
@@ -645,6 +661,13 @@ function disposeGizmo(gizmo) {
 		o.material?.map?.dispose?.();
 		o.material?.dispose?.();
 	});
+}
+
+/** Floor grid colour: the usual light blue, or a darker blue-grey when the background colour is light. */
+function gridColorFor(bg) {
+	if (!bg) return PALETTE.grid;
+	const c = new THREE.Color(bg);
+	return 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b > 0.45 ? 0x3d5a94 : PALETTE.grid;
 }
 
 /** Outline colour that stays visible on dark parts too. */

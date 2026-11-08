@@ -154,12 +154,21 @@ kbd { background: var(--blue-soft); border: 1px solid var(--line); border-radius
 	box-shadow: 0 0 0 5px rgba(90, 140, 255, .12), inset 0 0 70px rgba(30, 80, 200, .35);
 }
 /* Realistic style: a pale studio backdrop instead of the blueprint blue. */
-.stage[data-style="realistic"] { background: radial-gradient(ellipse at 50% 36%, #f1f3f6 0%, #d5dae2 55%, #b7bfcb 100%); border-color: rgba(255, 255, 255, .75); box-shadow: 0 0 0 5px rgba(255, 255, 255, .14), inset 0 0 60px rgba(70, 90, 130, .18); }
+/* (the ray traced image draws its own sky over this; this is what the fast preview shows) */
+.stage[data-style="realistic"] { background: linear-gradient(#4d86cf 0%, #8fb8e6 45%, #dbe8f4 72%, #c4ccd6 100%); border-color: rgba(255, 255, 255, .75); box-shadow: 0 0 0 5px rgba(255, 255, 255, .14), inset 0 0 60px rgba(70, 90, 130, .18); }
 .swatches { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; }
 .swatch { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1.5px var(--line-strong); cursor: pointer; padding: 0; }
 .swatch:hover { transform: scale(1.08); }
 .swatch[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--blue); }
 .stage:focus { outline: none; }
+/* A custom background colour replaces the style's own backdrop (inline style) and the ray traced sky. */
+.stage[data-custom-bg] { box-shadow: 0 0 0 5px rgba(255, 255, 255, .12), inset 0 0 60px rgba(0, 0, 0, .14); }
+.bg-tool { position: relative; }
+.bg-pop { position: absolute; top: calc(100% + 14px); left: 0; z-index: 6; width: 232px; display: flex; flex-direction: column; gap: 12px; padding: 14px; background: var(--glass); color: #fff; border: 1px solid var(--glass-line); border-radius: 18px; backdrop-filter: blur(8px); box-shadow: 0 10px 30px rgba(0, 0, 0, .35); }
+.bg-pop .swatch { border-color: rgba(255, 255, 255, .85); }
+.bg-custom { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-weight: 600; }
+.bg-custom input[type=color] { width: 64px; height: 34px; padding: 2px; border: 1px solid var(--glass-line); border-radius: 10px; background: rgba(255, 255, 255, .1); cursor: pointer; }
+.bg-pop .btn { color: var(--navy); }
 .viewport { position: absolute; inset: 0; touch-action: none; }
 .viewport canvas { background: transparent; }
 

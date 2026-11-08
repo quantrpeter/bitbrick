@@ -374,27 +374,3 @@ function BrickMeasurements({ part, block }) {
 		</>
 	);
 }
-
-// ---------------------------------------------------------------- About
-
-export function AboutPanel() {
-	return (
-		<Section id="about" title="About" icon="blocks">
-			<p className="hint">Design pin-and-axle building parts for 3D printing. Your designs are saved to your account.</p>
-			<dl className="keys">
-				<dt><kbd>1</kbd>-<kbd>6</kbd></dt><dd>set type</dd>
-				<dt><kbd>x</kbd> <kbd>y</kbd> <kbd>z</kbd></dt><dd>set orientation (X, Y flat, Z up)</dd>
-				<dt><kbd>h</kbd> <kbd>r</kbd></dt><dd>half block / rounded edges</dd>
-				<dt><kbd>{'←'}</kbd> <kbd>{'→'}</kbd></dt><dd>move cursor along X</dd>
-				<dt><kbd>{'↑'}</kbd> <kbd>{'↓'}</kbd></dt><dd>move cursor along Y (away / towards you)</dd>
-				<dt><kbd>w</kbd> <kbd>s</kbd></dt><dd>move cursor up and down (Z)</dd>
-				<dt><kbd>Enter</kbd></dt><dd>place a block</dd>
-				<dt><kbd>Del</kbd> <kbd>Backspace</kbd></dt><dd>remove block</dd>
-				<dt><kbd>Ctrl/Cmd</kbd>+<kbd>Z</kbd></dt><dd>undo (add Shift to redo)</dd>
-				<dt><kbd>Ctrl/Cmd</kbd>+<kbd>S</kbd></dt><dd>save</dd>
-			</dl>
-			<p className="hint">Click the 3D view to move the cursor. Shift+click selects the cell next to the clicked face.</p>
-			<p className="hint small">BitBrick is an independent project and is not affiliated with any brand owner.</p>
-		</Section>
-	);
-}

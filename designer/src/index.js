@@ -61,7 +61,7 @@ let lastView = '';
 subscribe(() => {
 	scheduleMesh();
 	schedulePreview();
-	const view = getState().displayStyle + getState().partColor + getState().rtQuality;
+	const view = getState().displayStyle + getState().partColor + getState().rtQuality + getState().bgColor;
 	if (view !== lastView) { lastView = view; saveViewPrefs(); }
 	const { part } = getState();
 	clearTimeout(draftTimer);

@@ -48,6 +48,7 @@ module.exports = (env, argv) => {
 					},
 				},
 				{ test: /\.css$/i, use: ['style-loader', 'css-loader'] },
+				{ test: /\.hdr\.jpg$/i, type: 'asset/resource', generator: { filename: 'assets/[name].[contenthash:8][ext]' } },
 				{ test: /\.wasm$/i, type: 'asset/resource', generator: { filename: 'assets/[name].[contenthash:8][ext]' } },
 			],
 		},
