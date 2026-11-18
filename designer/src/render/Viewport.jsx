@@ -317,13 +317,13 @@ export default function Viewport() {
 		ctx.U = U;
 		const build = () => {
 			if (ctx.grid) { ctx.scene.remove(ctx.grid); ctx.grid.geometry.dispose(); ctx.grid.material.dispose(); }
-			const cells = 40;
+			const cells = 200;
 			const grid = new THREE.GridHelper(cells * U, cells, gridColorFor(ctx.bgColor), gridColorFor(ctx.bgColor));
 			grid.visible = ctx.style !== 'realistic';
 			grid.material.transparent = true;
 			grid.material.opacity = 0.32;
 			grid.material.depthWrite = false;
-			// 40 cells centred on the origin, so grid lines fall on cell corners
+			// 200 cells centred on the origin, so grid lines fall on cell corners
 			grid.position.set(0, -0.02, 0);
 			ctx.scene.add(grid);
 			ctx.grid = grid;

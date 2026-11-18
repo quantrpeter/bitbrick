@@ -2,7 +2,7 @@
 import {
 	getState, setState, showToast, markSaved, loadPart, openDialog, closeDialog, STYLE_ORDER, PART_COLORS, RT_QUALITIES,
 } from './store.js';
-import { toBinaryStl, fileNameFor } from '../geometry/stl.js';
+import { toStl, fileNameFor } from '../geometry/stl.js';
 import { encodePart, decodePart } from '../model/codec.js';
 import { parsePart, emptyPart } from '../model/part.js';
 import { createDesign, updateDesign, getDesign, renameDesign, ApiError } from '../api/api.js';
@@ -30,8 +30,9 @@ export function saveStl() {
 	if (!mesh.manifold) {
 		return showToast(`The mesh is not watertight (${mesh.status}). Change the design or the measurements.`, 'error');
 	}
-	downloadBlob(new Blob([toBinaryStl(mesh, part.name)], { type: 'model/stl' }), fileNameFor(part.name, 'stl'));
-	showToast('STL saved');
+	const { data, bodies } = toStl(mesh, part.name);
+	downloadBlob(new Blob([data], { type: 'model/stl' }), fileNameFor(part.name, 'stl'));
+	showToast(bodies > 1 ? `STL saved (${bodies} separate objects)` : 'STL saved');
 }
 
 export async function copyText(text) {

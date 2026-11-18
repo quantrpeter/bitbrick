@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import Module from 'manifold-3d';
 import { buildMesh } from '../src/geometry/build.js';
-import { toBinaryStl } from '../src/geometry/stl.js';
+import { toBinaryStl, toStl, splitBodies } from '../src/geometry/stl.js';
 import { emptyPart, setBlock } from '../src/model/part.js';
 import { catalog } from '../src/model/catalog.js';
 
@@ -139,6 +139,24 @@ test('STL has the right size and triangle count', () => {
 	const buf = toBinaryStl(r, 'x');
 	assert.equal(buf.byteLength, 84 + r.triangleCount * 50);
 	assert.equal(new DataView(buf).getUint32(80, true), r.triangleCount);
+});
+
+test('one connected body saves as binary STL', () => {
+	const r = buildMesh(wasm, partOf([blk([0, 0, 0]), blk([1, 0, 0])]));
+	const { data, bodies } = toStl(r, 'x');
+	assert.equal(bodies, 1);
+	assert.ok(data instanceof ArrayBuffer);
+});
+
+test('separate bodies save as one ASCII solid each', () => {
+	const r = buildMesh(wasm, partOf([blk([0, 0, 0]), blk([0, 3, 0])]));
+	assert.equal(splitBodies(r.indices, r.positions).length, 2);
+	const { data, bodies } = toStl(r, 'two');
+	assert.equal(bodies, 2);
+	assert.equal(typeof data, 'string');
+	assert.deepEqual(data.match(/^solid .*$/gm), ['solid two 1', 'solid two 2']);
+	assert.equal((data.match(/^endsolid /gm) || []).length, 2);
+	assert.equal((data.match(/facet normal/g) || []).length, r.triangleCount);
 });
 
 test('setBlock keeps parts immutable', () => {
