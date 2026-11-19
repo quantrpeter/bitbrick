@@ -18,3 +18,4 @@ skill
 tests
 CLAUDE.md
 AGENTS.md
+bootstrap/cache/*.php
